@@ -3,14 +3,18 @@
   "version": "0.0.1",
   "description": "Awesome project developed with TypeORM.",
   "devDependencies": {
-    "ts-node": "8.4.1",
+    "@types/graphql": "^14.5.0",
     "@types/node": "^12.7.7",
+    "ts-node": "8.4.1",
     "typescript": "3.6.3"
   },
   "dependencies": {
-    "typeorm": "0.2.19",
+    "apollo-server-express": "^2.9.4",
+    "express": "^4.17.1",
+    "graphql": "^14.5.7",
+    "pg": "^7.12.1",
     "reflect-metadata": "^0.1.13",
-    "pg": "^7.12.1"
+    "typeorm": "0.2.19"
   },
   "scripts": {
     "start": "ts-node src/index.ts"
