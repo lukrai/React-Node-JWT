@@ -1,6 +1,24 @@
-import { Resolver, Query, Mutation, Arg } from "type-graphql";
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Arg,
+  ObjectType,
+  Field,
+  Ctx,
+  UseMiddleware,
+} from "type-graphql";
 import { User } from "./entity/User";
-import { hash } from "bcryptjs";
+import { hash, compare } from "bcryptjs";
+import { MyContext } from "./MyContext";
+import { createRefreshToken, createAccessToken } from "./auth";
+import { isAuth } from "./isAuth";
+
+@ObjectType()
+class LoginResponse {
+  @Field()
+  accessToken: string;
+}
 
 @Resolver()
 export class UserResolver {
@@ -9,9 +27,41 @@ export class UserResolver {
     return "Hi!";
   }
 
+  @Query(() => String)
+  @UseMiddleware(isAuth)
+  bye(@Ctx() { payload }: MyContext) {
+    console.log(payload);
+    return `Your user id is: ${payload!.userId}`;
+  }
+
   @Query(() => [User])
   users() {
     return User.find();
+  }
+
+  @Mutation(() => LoginResponse)
+  async login(
+    @Arg("email") email: string,
+    @Arg("password") password: string,
+    @Ctx() { res }: MyContext,
+  ): Promise<LoginResponse> {
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      throw new Error("Email or password is incorrect.");
+    }
+
+    const valid = await compare(password, user.password);
+
+    if (!valid) {
+      throw new Error("Email or password is incorrect.");
+    }
+
+    res.cookie("jid", createRefreshToken(user), { httpOnly: true });
+
+    return {
+      accessToken: createAccessToken(user),
+    };
   }
 
   @Mutation(() => Boolean)
