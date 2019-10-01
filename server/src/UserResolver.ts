@@ -13,6 +13,7 @@ import { hash, compare } from "bcryptjs";
 import { MyContext } from "./MyContext";
 import { createRefreshToken, createAccessToken } from "./auth";
 import { isAuth } from "./isAuth";
+import { sendRefhreshToken } from "./sendRefreshToken";
 
 @ObjectType()
 class LoginResponse {
@@ -57,7 +58,7 @@ export class UserResolver {
       throw new Error("Email or password is incorrect.");
     }
 
-    res.cookie("jid", createRefreshToken(user), { httpOnly: true });
+    sendRefhreshToken(res, createRefreshToken(user));
 
     return {
       accessToken: createAccessToken(user),
