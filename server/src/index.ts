@@ -16,6 +16,7 @@ import { sendRefhreshToken } from "./sendRefreshToken";
   app.use(cookieParser());
 
   app.get("/", (_req, res) => res.send("Hello"));
+
   app.post("/refresh_token", async (req, res) => {
     const token = req.cookies.jid;
     if (!token) {
@@ -32,6 +33,10 @@ import { sendRefhreshToken } from "./sendRefreshToken";
 
     const user = await User.findOne(payload.userId);
     if (!user) {
+      return res.send({ ok: false, accessToken: "" });
+    }
+
+    if (user.tokenVersion !== payload.tokenVersion) {
       return res.send({ ok: false, accessToken: "" });
     }
 
